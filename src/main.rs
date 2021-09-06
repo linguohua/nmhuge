@@ -80,22 +80,27 @@ fn main() -> std::io::Result<()> {
 
     unsafe {
         let start_addr:c_ulonglong = 32 << 40; // 32TB
-        let start_ptr = start_addr as *mut c_ulonglong as *mut c_void;
-        match map_1gb(start_ptr, 0) {
-            Ok(addr) => {
-                let gb = 1;
-                let ptr = addr as c_ulonglong as *mut u64;
-                // for _i in 1..gb {
-                //     *ptr = 0x1;
-                //     ptr = ptr.add(GB / std::mem::size_of::<u32>());
-                // }
-                std::ptr::write_bytes(ptr, 0, gb*GB/std::mem::size_of::<u64>());
+        let pages = 8;
+        for i in 0..pages {
+            let start_ptr = (start_addr + (i * GB) as u64)
+                    as *mut c_ulonglong as *mut c_void;
+            match map_1gb(start_ptr , 0) {
+                Ok(addr) => {
+                    let gb = 1;
+                    let ptr = addr as c_ulonglong as *mut u64;
+                    // for _i in 1..gb {
+                    //     *ptr = 0x1;
+                    //     ptr = ptr.add(GB / std::mem::size_of::<u32>());
+                    // }
+                    std::ptr::write_bytes(ptr, 0, gb*GB/std::mem::size_of::<u64>());
 
-                info!("write to {} GB ok", gb);
-            },
-            Err(e) => {
-                error!("map_1gb failed:{}", e);
-            },
+                    info!("write to {} GB ok", gb);
+                },
+                Err(e) => {
+                    error!("map_1gb failed:{}", e);
+                    return Err(e);
+                },
+            }
         }
     }
 
