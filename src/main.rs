@@ -1,6 +1,7 @@
 use ::libc::{*};
 use log::{error, info};
 use std::io::{Read, Error, ErrorKind};
+use simple_logger::SimpleLogger;
 
 // const MPOL_DEFAULT:c_int = 0;
 const MPOL_BIND:c_int = 2;
@@ -40,6 +41,7 @@ void *mmap(void *addr, size_t length, int prot, int flags,
 }
 
 fn main() -> std::io::Result<()> {
+    SimpleLogger::new().init().unwrap();
     // unsafe {
     //     let nmask = 0x01;
     //     let lr = set_mempolicy(MPOL_USED, &nmask, 32);
