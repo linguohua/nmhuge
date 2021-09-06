@@ -1,6 +1,6 @@
 use ::libc::{*};
 use log::{error, info};
-use std::io::{Read, Error, ErrorKind};
+use std::io::{Error, ErrorKind};
 use simple_logger::SimpleLogger;
 
 // const MPOL_DEFAULT:c_int = 0;
@@ -78,15 +78,16 @@ fn main() -> std::io::Result<()> {
         info!("mbind ok");
 
         let mut ptr = addr as c_ulonglong as *mut u32;
-        for i in 1..gb {
+        for _i in 1..gb {
             *ptr = 0x1;
-            ptr = ptr.add(i * GB / std::mem::size_of::<u32>());
+            ptr = ptr.add(GB / std::mem::size_of::<u32>());
         }
 
         info!("write to {} GB ok", gb);
     }
 
     let mut buffer = String::new();
-    std::io::stdin().read_to_string(&mut buffer)?;
+    std::io::stdin().read_line(&mut buffer)?;
+
     Ok(())
 }
