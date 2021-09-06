@@ -77,7 +77,7 @@ fn main() -> std::io::Result<()> {
         }
         info!("mbind ok");
 
-        let mut ptr = addr as *mut u32;
+        let mut ptr = addr as c_ulonglong as *mut u32;
         for i in 1..gb {
             *ptr = 0x1;
             ptr = ptr.add(i * GB / std::mem::size_of::<u32>());
