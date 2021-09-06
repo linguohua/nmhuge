@@ -77,11 +77,12 @@ fn main() -> std::io::Result<()> {
         }
         info!("mbind ok");
 
-        let mut ptr = addr as c_ulonglong as *mut u32;
-        for _i in 1..gb {
-            *ptr = 0x1;
-            ptr = ptr.add(GB / std::mem::size_of::<u32>());
-        }
+        let ptr = addr as c_ulonglong as *mut u64;
+        // for _i in 1..gb {
+        //     *ptr = 0x1;
+        //     ptr = ptr.add(GB / std::mem::size_of::<u32>());
+        // }
+        std::ptr::write_bytes(ptr, 0, gb*GB);
 
         info!("write to {} GB ok", gb);
     }
