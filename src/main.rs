@@ -76,7 +76,7 @@ fn main() -> std::io::Result<()> {
 
     // create memory file fd
     let cstr = std::ffi::CString::new("hello").unwrap();
-    let flags: c_uint = MFD_CLOEXEC|MFD_HUGETLB|MFD_HUGE_1GB;
+    let flags: c_uint = MFD_HUGETLB|MFD_HUGE_1GB;
 
     let fd = unsafe {memfd_create(cstr.as_ptr(), flags)};
     if fd < 0 {
@@ -97,16 +97,18 @@ fn main() -> std::io::Result<()> {
                 as *mut c_ulonglong as *mut c_void;
 
         let protect_flags = PROT_READ|PROT_WRITE;
-        let flags = MAP_PRIVATE | MAP_ANONYMOUS;
+        let flags = MAP_PRIVATE|MAP_FIXED;
 
         let addr = mmap(start_ptr, gb*GB,
             protect_flags, flags, fd, 0);
+        info!("mmap return:{}", addr as u64);
         if addr as c_ulonglong == 0 {
             let e = format!("mmap failed:{}", Error::last_os_error());
             error!("{}", e);
             return Err(Error::new(ErrorKind::Other, e));
         }
 
+        info!("write to mmap region");
         // write to address
         let ptr = addr as c_ulonglong as *mut u64;
         std::ptr::write_bytes(ptr, 0, 1);
